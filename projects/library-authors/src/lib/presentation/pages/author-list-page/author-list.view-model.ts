@@ -1,0 +1,129 @@
+import { computed, effect, inject, Injectable, signal, untracked } from '@angular/core';
+import type { SortField } from '@eac-arch/shared-kernel';
+import type { LiteraryGenreDto } from 'library-integration';
+import { AUTHORS_PUBLIC_API, type GetAllAuthorsRequest, type GetAllAuthorsResponse } from '../../../application/public-api';
+
+type AuthorListItemDto = GetAllAuthorsResponse['items'][number];
+import { ListQueryParamsSyncer } from '@eac-arch/infrastructure-state';
+
+@Injectable()
+export class AuthorListViewModel {
+
+  private readonly publicApi = inject(AUTHORS_PUBLIC_API);
+
+  private readonly url = new ListQueryParamsSyncer({
+    search:          { type: 'string' as const, debounce: 350 },
+    // URL is 1-based, signal is 0-based — default must be in URL space (1)
+    pageIndex:       { type: 'number' as const, default: 1, toSignal: (v: number) => v - 1, fromSignal: (v: number) => v + 1 },
+    pageSize:        { type: 'number' as const, default: 10 },
+    sort:            { type: 'sort'   as const },
+    literaryGenreId: { type: 'string' as const },
+  });
+
+  // Expose URL-bound signals directly — seeded from URL, auto-synced back
+  readonly searchText            = this.url.params.search;
+  readonly currentPage           = this.url.params.pageIndex;
+  readonly pageSize              = this.url.params.pageSize;
+  readonly sortFields            = this.url.params.sort as unknown as ReturnType<typeof signal<SortField[]>>;
+  readonly selectedLiteraryGenreId = this.url.params.literaryGenreId;
+
+  // Sort visual helpers for matSortActive / matSortDirection bindings
+  readonly activeSortField     = computed(() => (this.url.params.sort()[0] as SortField | undefined)?.field ?? '');
+  readonly activeSortDirection = computed(() => (this.url.params.sort()[0] as SortField | undefined)?.direction ?? '');
+
+  readonly authors        = signal<readonly AuthorListItemDto[]>([]);
+  readonly totalCount     = signal(0);
+  readonly literaryGenres = signal<readonly LiteraryGenreDto[]>([]);
+  readonly status         = signal<'success' | 'empty'>('empty');
+
+  private readonly reloadTrigger = signal(0);
+  // Set by the search button to bypass the 350ms debounce.
+  // Cleared after the first load triggered by it.
+  private readonly immediateSearch = signal<string | undefined>(undefined);
+
+  private readonly queryParams = computed(() => ({
+    pageIndex:       this.currentPage() ?? 0,
+    pageSize:        this.pageSize()    ?? 10,
+    sortFields:      this.url.params.sort() as SortField[],
+    searchText:      this.immediateSearch() ?? this.url.debounced.search() ?? '',
+    literaryGenreId: this.selectedLiteraryGenreId() ?? undefined,
+    _reload:         this.reloadTrigger(),
+  }));
+
+  constructor() {
+    // Clear immediateSearch only when debounced has caught up to the same value.
+    // At that point queryParams.searchText doesn't change, so no extra reload fires.
+    effect(() => {
+      if (this.immediateSearch() !== undefined && this.url.debounced.search() === this.immediateSearch()) {
+        untracked(() => this.immediateSearch.set(undefined));
+      }
+    });
+    effect(() => {
+      const params = this.queryParams();
+      untracked(() => this.doLoadAuthors(params));
+    });
+  }
+
+  setGenres(genres: readonly LiteraryGenreDto[]): void {
+    this.literaryGenres.set(genres);
+  }
+
+  search(value: string): void {
+    this.searchText.set(value);
+    this.currentPage.set(0);
+    this.immediateSearch.set(value);
+  }
+
+  clearSearch(): void {
+    this.searchText.set('');
+    this.currentPage.set(0);
+    this.immediateSearch.set('');
+  }
+
+  filterByGenre(genreId: string | null | undefined): void {
+    this.selectedLiteraryGenreId.set(genreId ?? undefined);
+    this.currentPage.set(0);
+  }
+
+  changePage(pageIndex: number, pageSize: number): void {
+    this.currentPage.set(pageIndex);
+    this.pageSize.set(pageSize);
+  }
+
+  changeSort(field: string, direction: '' | 'asc' | 'desc'): void {
+    const sorts: SortField[] = (!field || direction === '') ? [] : [{ field, direction }];
+    this.sortFields.set(sorts);
+    this.currentPage.set(0);
+  }
+
+  private async doLoadAuthors(params: ReturnType<typeof this.queryParams>): Promise<void> {
+    try {
+      const request: GetAllAuthorsRequest = {
+        pageNumber: params.pageIndex + 1,
+        pageSize:   params.pageSize,
+        search:     params.searchText || undefined,
+        literaryGenreId: params.literaryGenreId ?? undefined,
+        sortFields: params.sortFields.length ? params.sortFields : undefined,
+      };
+      const response = await this.publicApi.getAllAuthors(request);
+      this.authors.set(response.items);
+      this.totalCount.set(response.totalCount);
+      this.status.set(response.items.length > 0 ? 'success' : 'empty');
+    } catch {
+      this.authors.set([]);
+      this.totalCount.set(0);
+    }
+  }
+
+  adjustAfterDelete(): void {
+    const currentPage = this.currentPage() ?? 0;
+    const pageSize    = this.pageSize() ?? 10;
+    const totalNext   = Math.max(0, this.totalCount() - 1);
+    const maxPage     = Math.max(0, Math.ceil(totalNext / pageSize) - 1);
+    if (currentPage > maxPage) {
+      this.currentPage.set(maxPage); // page change already triggers reload via effect
+    } else {
+      this.reloadTrigger.update(n => n + 1);
+    }
+  }
+}

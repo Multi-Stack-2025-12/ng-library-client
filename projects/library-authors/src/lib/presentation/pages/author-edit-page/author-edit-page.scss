@@ -1,0 +1,10 @@
+// Author edit page
+// Layout: .detail-page (flex column, overflow hidden) from _detail-page.scss
+// Edit-specific classes (.edit-form-body, .field-error) from _edit-page.scss
+
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}

@@ -1,0 +1,13 @@
+node_modules
+npm-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.angular
+coverage
+dist
+.git
+.gitignore
+.vscode
+.env
+.env.local
+repo-bootstrap-output

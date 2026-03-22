@@ -1,0 +1,13 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: ng-library-client
+spec:
+  host: ng-library-client__OPENSHIFT_NAME_SUFFIX__.apps.__OPENSHIFT_DOMAIN__
+  to:
+    kind: Service
+    name: ng-library-client
+  port:
+    targetPort: http
+  tls:
+    termination: edge

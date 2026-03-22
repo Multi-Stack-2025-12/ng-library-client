@@ -1,0 +1,23 @@
+import { Routes } from '@angular/router';
+import { AuthorsShell } from '../shell/authors-shell';
+import { AuthorListPage } from '../pages/author-list-page/author-list-page';
+import { AuthorDetailPage } from '../pages/author-detail-page/author-detail-page';
+import { AuthorEditPage } from '../pages/author-edit-page/author-edit-page';
+import { authorDetailResolver } from './resolvers/author-detail.resolver';
+import { authorEditResolver } from './resolvers/author-edit.resolver';
+import { authorNewResolver } from './resolvers/author-new.resolver';
+import { authorListResolver } from './resolvers/author-list.resolver';
+import { pendingChangesGuard } from '@eac-arch/ui-kit';
+
+export const AUTHORS_ROUTES: Routes = [
+  {
+    path: '',
+    component: AuthorsShell,
+    children: [
+      { path: '',               component: AuthorListPage,   resolve: { authorList: authorListResolver } },
+      { path: 'new',            component: AuthorEditPage,   resolve: { authorEdit: authorNewResolver }, canDeactivate: [pendingChangesGuard] },
+      { path: ':authorId',      component: AuthorDetailPage, resolve: { authorDetail: authorDetailResolver } },
+      { path: ':authorId/edit', component: AuthorEditPage,   resolve: { authorEdit: authorEditResolver }, canDeactivate: [pendingChangesGuard] },
+    ]
+  }
+];

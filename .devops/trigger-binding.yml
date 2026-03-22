@@ -1,0 +1,21 @@
+resources:
+  repositories:
+  - repository: shared-pipelines
+    type: github
+    name: 'Multi-Stack-2025-12/shared-pipelines'
+    endpoint: 'Multi-Stack-2025-12'
+
+trigger:
+  branches:
+    include:
+      - main
+  tags:
+    include:
+      - '*'
+
+extends:
+  template: triggers/trigger-angular-template.yml@shared-pipelines
+  parameters:
+    SharedPipelinesRepositoryName: 'Multi-Stack-2025-12/shared-pipelines'
+    SharedPipelinesEndpoint: 'Multi-Stack-2025-12'
+    ProjectName: 'ng-library-client'

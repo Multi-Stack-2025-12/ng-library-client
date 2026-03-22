@@ -1,0 +1,151 @@
+// ==========================================================================
+// List Page Layout
+// Reusable layout for any list page with table + accordion + paginator.
+//
+// Structure:
+//   .list-container              -> flex column wrapper
+//     .list-filters              -> filter bar (grid)
+//     .list-table-container      -> scrollable table wrapper
+//     .list-accordion-container  -> mobile card/accordion wrapper
+//     mat-paginator              -> pagination
+//
+// Desktop: table visible, accordion hidden
+// Mobile portrait: table hidden, accordion visible
+// ==========================================================================
+
+// --- Layout container ---
+.list-container {
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - var(--list-offset, var(--lib-list-offset)));
+  position: relative;
+
+  .list-table-container {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+  }
+
+  mat-paginator {
+    flex: 0 0 auto;
+  }
+}
+
+// --- Filters ---
+.list-filters {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.list-filters--with-action {
+  grid-template-columns: minmax(260px, 1fr) minmax(220px, 320px) auto;
+  gap: var(--list-filters-gap, var(--lib-space-2));
+  align-items: start;
+  margin-bottom: var(--list-filters-bottom-gap, var(--lib-space-2));
+}
+
+.list-filter-action {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.list-filter-action > button {
+  min-width: var(--list-filter-button-min-width, calc(var(--lib-space-4) * 4));
+}
+
+// --- Empty / no-data row ---
+td.no-data-row, div.no-data-row {
+  padding: var(--lib-space-3);
+  text-align: center;
+  color: var(--mat-sys-on-surface-variant);
+  font-style: italic;
+}
+
+// --- Row actions ---
+.actions-cell .row-actions {
+  display: inline-flex;
+}
+
+// --- Desktop: show table, hide accordion ---
+.list-table-container {
+  display: block;
+}
+
+.list-accordion-container {
+  display: none;
+  margin-bottom: var(--lib-gap);
+}
+
+// --- Mobile portrait: hide table, show accordion ---
+@media (max-width: 600px) and (orientation: portrait) {
+  .list-table-container {
+    display: none;
+  }
+
+  .list-accordion-container {
+    display: block;
+  }
+
+  .list-accordion {
+    .mat-expansion-panel-header-description {
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .panel-actions {
+      display: flex;
+      align-items: center;
+      width: 100%;
+    }
+
+    .panel-actions .spacer {
+      flex: 1;
+    }
+  }
+
+  .field {
+    margin-bottom: var(--lib-gap);
+  }
+
+  .mobile-icon {
+    vertical-align: middle;
+  }
+}
+
+// --- Responsive: tablet / landscape ---
+@media (hover: none) and (pointer: coarse), (max-width: 899px), (max-height: 599px) {
+  .list-container {
+    display: block;
+    height: auto;
+    max-height: none;
+  }
+
+  .list-table-container {
+    overflow: visible;
+    min-height: 0;
+  }
+
+  mat-paginator {
+    position: static;
+  }
+
+  .list-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .list-filters--with-action {
+    gap: var(--list-filters-gap-mobile, var(--list-filters-gap, var(--lib-space-2)));
+    margin-bottom: var(--list-filters-bottom-gap-mobile, var(--lib-space-1));
+  }
+
+  .list-filter-action {
+    justify-content: stretch;
+    margin-bottom: var(--list-filter-action-mobile-margin, var(--lib-space-2));
+  }
+
+  .list-filter-action > button {
+    width: 100%;
+    min-width: 0;
+  }
+}

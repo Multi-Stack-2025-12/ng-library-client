@@ -1,0 +1,202 @@
+<mat-toolbar color="primary">
+  <span>Library</span>
+  <span class="lib-spacer"></span>
+  <app-config-viewer />
+  @if (security.isLoggedIn()) {
+    <app-token-info />
+  }
+  <app-theme-toggle />
+
+  @if (security.isLoggedIn()) {
+  <button mat-icon-button [matMenuTriggerFor]="accountMenu" aria-label="Account menu">
+    <mat-icon>account_circle</mat-icon>
+  </button>
+  <mat-menu #accountMenu="matMenu">
+    <button mat-menu-item disabled>
+      <mat-icon>face</mat-icon>
+      <span>{{ security.profile()?.displayName }}</span>
+    </button>
+    <button mat-menu-item data-action="auth.logout" (click)="security.logout()">
+      <mat-icon>logout</mat-icon>
+      <span>Log out</span>
+    </button>
+  </mat-menu>
+  } @else {
+  <button mat-button data-action="auth.login" (click)="security.login()">
+    <mat-icon>login</mat-icon>
+    <span>Log in</span>
+  </button>
+  }
+</mat-toolbar>
+
+<div class="lib-container">
+  <h1 class="text-center">Library</h1>
+
+  <div class="grid grid-auto-fit gap-3 mt-3">
+    <mat-card>
+      <mat-card-header>
+        <img mat-card-avatar src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Crect width='80' height='80' fill='%231C2C44'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Roboto,sans-serif' font-size='32' fill='%23FFFFFF'%3EA%3C/text%3E%3C/svg%3E" alt="Authors avatar">
+        <mat-card-title>Authors</mat-card-title>
+        <mat-card-subtitle>Manage authors information</mat-card-subtitle>
+      </mat-card-header>
+      <img mat-card-image src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='200'%3E%3Crect width='400' height='200' fill='%231C2C44'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Roboto,sans-serif' font-size='32' fill='%23FFFFFF'%3EAuthors%3C/text%3E%3C/svg%3E" alt="Authors">
+      <mat-card-actions>
+        <button mat-button color="primary" data-action="home.access-authors" (click)="accessModule('authors')">ACCESS</button>
+      </mat-card-actions>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-header>
+        <img mat-card-avatar src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Crect width='80' height='80' fill='%231C2C44'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Roboto,sans-serif' font-size='32' fill='%23FFFFFF'%3EB%3C/text%3E%3C/svg%3E" alt="Books avatar">
+        <mat-card-title>Books</mat-card-title>
+        <mat-card-subtitle>Manage books catalog</mat-card-subtitle>
+      </mat-card-header>
+      <img mat-card-image src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='200'%3E%3Crect width='400' height='200' fill='%231C2C44'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Roboto,sans-serif' font-size='32' fill='%23FFFFFF'%3EBooks%3C/text%3E%3C/svg%3E" alt="Books">
+      <mat-card-actions>
+        <button mat-button color="primary" data-action="home.access-books" (click)="accessModule('books')">ACCESS</button>
+      </mat-card-actions>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-header>
+        <img mat-card-avatar src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Crect width='80' height='80' fill='%231C2C44'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Roboto,sans-serif' font-size='32' fill='%23FFFFFF'%3EC%3C/text%3E%3C/svg%3E" alt="Catalog avatar">
+        <mat-card-title>Catalog</mat-card-title>
+        <mat-card-subtitle>Browse library catalog</mat-card-subtitle>
+      </mat-card-header>
+      <img mat-card-image src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='200'%3E%3Crect width='400' height='200' fill='%231C2C44'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Roboto,sans-serif' font-size='32' fill='%23FFFFFF'%3ECatalog%3C/text%3E%3C/svg%3E" alt="Catalog">
+      <mat-card-actions>
+        <button mat-button color="primary" data-action="home.access-catalog" (click)="accessModule('catalog')">ACCESS</button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
+  <!-- Signals playground -->
+  <h2 class="mt-3">Signals Playground</h2>
+
+  <div class="grid grid-auto-fit gap-3 mt-2">
+
+    <!-- signal() -->
+    <mat-card>
+      <mat-card-header>
+        <mat-icon mat-card-avatar class="signal-avatar">edit_note</mat-icon>
+        <mat-card-title>signal()</mat-card-title>
+        <mat-card-subtitle>Writable reactive primitive</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content class="flex flex-col gap-2 pt-2">
+        <div class="text-center font-bold text-3xl">{{ counter() }}</div>
+        <div class="flex gap-1 items-center justify-center flex-wrap">
+          <button mat-mini-fab aria-label="Decrement" (click)="counterDecrement()">
+            <mat-icon>remove</mat-icon>
+          </button>
+          <button mat-mini-fab aria-label="Increment" (click)="counterIncrement()">
+            <mat-icon>add</mat-icon>
+          </button>
+          <button mat-stroked-button (click)="counterSet(100)">Set 100</button>
+          <button mat-stroked-button (click)="counterReset()">Reset</button>
+        </div>
+        <mat-divider />
+        <div class="text-sm opacity-70">
+          <code class="code">counter.set(1)</code> — replaces the value<br>
+          <code class="code">counter.update(c => c + 1)</code> — derives from current
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- computed() -->
+    <mat-card>
+      <mat-card-header>
+        <mat-icon mat-card-avatar class="signal-avatar">functions</mat-icon>
+        <mat-card-title>computed()</mat-card-title>
+        <mat-card-subtitle>Read-only derived value</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content class="flex flex-col gap-2 pt-2">
+        <div class="text-center font-bold text-3xl">Total: {{ total() }}</div>
+        <div class="text-center">
+          <mat-chip-set>
+            <mat-chip>Price: {{ price() }}</mat-chip>
+            <mat-chip>Qty: {{ qty() }}</mat-chip>
+          </mat-chip-set>
+        </div>
+        <div class="flex gap-1 items-center justify-center flex-wrap">
+          <button mat-stroked-button (click)="setPrice(5)">Price 5</button>
+          <button mat-stroked-button (click)="setPrice(20)">Price 20</button>
+          <button mat-mini-fab aria-label="Decrement quantity" (click)="decrementQty()">
+            <mat-icon>remove</mat-icon>
+          </button>
+          <button mat-mini-fab aria-label="Increment quantity" (click)="incrementQty()">
+            <mat-icon>add</mat-icon>
+          </button>
+          <button mat-stroked-button (click)="resetComputed()">Reset</button>
+        </div>
+        <mat-divider />
+        <div class="text-sm opacity-70">
+          <code class="code">computed(() => price() * qty())</code><br>
+          Read-only — cannot use .set() or .update()
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- linkedSignal() -->
+    <mat-card>
+      <mat-card-header>
+        <mat-icon mat-card-avatar class="signal-avatar">link</mat-icon>
+        <mat-card-title>linkedSignal()</mat-card-title>
+        <mat-card-subtitle>Derived + writable</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content class="flex flex-col gap-2 pt-2">
+        <div class="text-center font-bold text-3xl">Score: {{ score() }}</div>
+        <div class="text-center">
+          <mat-chip-set>
+            <mat-chip [highlighted]="resetFlag()">Reset: {{ resetFlag() }}</mat-chip>
+          </mat-chip-set>
+        </div>
+        <div class="flex gap-1 items-center justify-center flex-wrap">
+          <button mat-stroked-button (click)="toggleReset()">Toggle reset</button>
+          <button mat-mini-fab aria-label="Increment score" (click)="incrementScore()">
+            <mat-icon>add</mat-icon>
+          </button>
+          <button mat-stroked-button (click)="setScore(50)">Set 50</button>
+          <button mat-stroked-button (click)="setScore(99)">Set 99</button>
+        </div>
+        <mat-divider />
+        <div class="text-sm opacity-70">
+          <code class="code">linkedSignal(() => reset() ? 0 : 10)</code><br>
+          Like computed, but you CAN call .set() / .update()
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- effect() -->
+    <mat-card>
+      <mat-card-header>
+        <mat-icon mat-card-avatar class="signal-avatar">bolt</mat-icon>
+        <mat-card-title>effect()</mat-card-title>
+        <mat-card-subtitle>Side-effect on signal change</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content class="flex flex-col gap-2 pt-2">
+        <div class="text-center font-bold text-3xl">{{ effectCounter() }}</div>
+        <div class="flex gap-1 items-center justify-center flex-wrap">
+          <button mat-mini-fab aria-label="Increment effect counter" (click)="incrementEffectCounter()">
+            <mat-icon>add</mat-icon>
+          </button>
+          <button mat-stroked-button (click)="resetEffectCounter()">Reset</button>
+          <button mat-stroked-button (click)="clearEffectLog()">Clear log</button>
+        </div>
+        <mat-divider />
+        <div class="text-sm p-2 font-mono bg-surface rounded overflow-y-auto effect-log">
+          @for (entry of effectLog(); track $index) {
+            <div class="log-entry">{{ entry }}</div>
+          } @empty {
+            <div class="text-center opacity-50">No log entries yet</div>
+          }
+        </div>
+        <mat-divider />
+        <div class="text-sm opacity-70">
+          <code class="code">effect(() => console.log(counter()))</code><br>
+          Runs automatically when dependencies change
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+  </div>
+</div>

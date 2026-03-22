@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ng-library-client
+  labels:
+    app: ng-library-client
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: ng-library-client
+  template:
+    metadata:
+      labels:
+        app: ng-library-client
+    spec:
+      imagePullSecrets:
+        - name: secret-container-registry-pull
+      containers:
+        - name: ng-library-client
+          image: __IMAGE_URI__
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 4000
+          envFrom:
+            - secretRef:
+                name: ng-library-client-secret

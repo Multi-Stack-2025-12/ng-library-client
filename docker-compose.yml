@@ -1,0 +1,31 @@
+services:
+  ng-library-client:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        PROJECT: ng-library-client
+        NPM_PUBLIC_REGISTRY_URL: ${NPM_PUBLIC_REGISTRY_URL:-https://registry.npmjs.org}
+        NPM_REGISTRY_URL: ${NPM_REGISTRY_URL:-http://localhost:9082/repository/multistack-npm-hosted/}
+        NPM_SCOPE: ${NPM_SCOPE:-@eac-arch}
+        NPM_USERNAME: ${NPM_USERNAME:-platform}
+      secrets:
+        - NPM_PASSWORD
+    image: ng-library-client:local
+    container_name: ng-library-client
+    env_file:
+      - .env
+    ports:
+      - "${CLIENT_HOST_PORT:-8086}:${CLIENT_CONTAINER_PORT:-4000}"
+    restart: unless-stopped
+    networks:
+      - frontend
+
+networks:
+  frontend:
+    name: frontend
+    driver: bridge
+
+secrets:
+  NPM_PASSWORD:
+    environment: NPM_PASSWORD

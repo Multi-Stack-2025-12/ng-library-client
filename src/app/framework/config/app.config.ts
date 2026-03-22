@@ -1,0 +1,35 @@
+import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZonelessChangeDetection } from '@angular/core';
+import { provideRouter, withComponentInputBinding } from '@angular/router';
+import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
+import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
+import { provideConfig } from '@eac-arch/infrastructure-config';
+import { provideSecurity, authInterceptor } from '@eac-arch/infrastructure-security';
+import { httpErrorInterceptor, provideErrorHandling } from '@eac-arch/infrastructure-http';
+import { provideTelemetry, telemetryHttpInterceptor } from '@eac-arch/infrastructure-telemetry';
+import { provideGlobalDateFormat, loadingInterceptor, provideNotifications } from '@eac-arch/ui-kit';
+import { provideModules, provideAgents } from '../providers';
+
+import { routes } from '../../ui/main/routes/app.routes';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideBrowserGlobalErrorListeners(),
+    provideZonelessChangeDetection(),
+    provideRouter(routes, withComponentInputBinding()),
+    provideClientHydration(withEventReplay()),
+    provideConfig(),
+    provideTelemetry(),
+    provideSecurity(),
+    provideHttpClient(withFetch(), withInterceptors([
+      telemetryHttpInterceptor,
+      httpErrorInterceptor,
+      loadingInterceptor,
+      authInterceptor,
+    ])),
+    provideModules(),
+    provideAgents(),
+    provideGlobalDateFormat(),
+    provideErrorHandling(),
+    provideNotifications(),
+  ],
+};
